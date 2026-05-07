@@ -355,27 +355,19 @@ class SymmetryGroup:
             # into consecutive blocks of size `stride`.  For each such block we
             # compute the phase of every member and perform two checks:
             #
-            #   (1) Consistency: all phases in the block must be equal.
+            #       Consistency: all phases in the block must be equal.
             #       If they differ, the symmetry generators are incompatible with
             #       the chosen quantum numbers (e.g., C4 rotation combined with
             #       momentum kx ≠ ky), and the irrep labelling is ill-defined.
             #
-            #   (2) Non-zero norm: the sum of phases must not be zero.
-            #       A zero sum means the projection onto this irrep vanishes for
-            #       every state — the chosen quantum numbers do not correspond to
-            #       any valid irrep of the group (e.g., px = -1 for a lattice
-            #       with even Lx and momentum kx = 0 where the stabilizer forces
-            #       the norm to zero).
-            #
-            # Both checks loop over the unique permutations (ntrans_u blocks).
-            """
+            # This check loop over the unique permutations (ntrans_u blocks).
             for u in range(ntrans_u):
                 block = sort_idx[u * stride : (u + 1) * stride]  # indices into transstep_all
                 phases = [
                     self.phase_of(*transstep_all[idx].tolist())
                     for idx in block
                 ]
-                # Check (1): all phases in the block must agree
+                # Check: all phases in the block must agree
                 ref = phases[0]
                 for p in phases[1:]:
                     if abs(p - ref) > 1e-10:
@@ -391,21 +383,6 @@ class SymmetryGroup:
                             f"or that the momentum sector is compatible with the "
                             f"active discrete symmetries."
                         )
-                # Check (2): sum of phases must be non-zero
-                phase_sum = sum(phases)
-                if abs(phase_sum) < 1e-10:
-                    steps = [transstep_all[idx].tolist() for idx in block]
-                    raise ValueError(
-                        f"Invalid quantum numbers: the {stride} generator "
-                        f"combinations that produce the same permutation at "
-                        f"block {u} have phases summing to zero.\n"
-                        f"  steps      : {steps}\n"
-                        f"  phases     : {[f'{ph:.6f}' for ph in phases]}\n"
-                        f"  phase sum  : {phase_sum:.6e}\n"
-                        f"This symmetry sector has zero norm — no physical states "
-                        f"exist with these quantum numbers."
-                    )
-            """
         else:
             unique_first = sort_idx
 
