@@ -45,7 +45,7 @@ py   = 1
 sgm1 = -1
 sgm2 = -1
 zz   = 1
-rr   = 0
+rr   = 2
 sec  = 0    # half filling: nup = N//2
 nRot = 4
 
