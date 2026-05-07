@@ -27,8 +27,11 @@ from symm_basis.lanczos import lanczos
 Lx, Ly   = 4, 4
 nbx, nby = 2, 2
 N        = Lx * Ly
+J1 = 1.0
+J2 = 0.15
 
-lattice    = SquareLattice2D(Lx=Lx, Ly=Ly, nbx=nbx, nby=nby)
+
+lattice    = SquareLattice2D(Lx=Lx, Ly=Ly, nbx=nbx, nby=nby, include_diagonal=True)
 nat_to_mps = lattice.nat_to_mps
 mps_to_nat = lattice.mps_to_nat
 
@@ -39,12 +42,23 @@ kx   = 0
 ky   = 0
 px   = 1
 py   = 1
-rr   = 0
-nRot = 4
-sgm1 = 1
-sgm2 = 1
+sgm1 = -1
+sgm2 = -1
 zz   = 1
+rr   = 0
 sec  = 0    # half filling: nup = N//2
+nRot = 4
+
+#kx   = 2
+#ky   = 2
+#px   = -1
+#py   = -1
+#sgm1 = 1
+#sgm2 = 1
+#zz   = -1
+#rr   = 0
+#sec  = 0    # half filling: nup = N//2
+#nRot = 4
 
 use_Tx   = True
 use_Ty   = True
@@ -73,7 +87,7 @@ group = SymmetryGroup(
 basis = SymmBasis(group=group, N=N, nup=nup, zz=zz)
 
 print("=" * 65)
-print(f"  4×4 Heisenberg model,  J1=1  (antiferromagnet)")
+print(f"  4×4 J1-J2 Heisenberg model,  J1={J1}  J2={J2}")
 print(f"  Sector: kx={kx} ky={ky}  px={px} py={py}  rr={rr}/{nRot}  "
       f"sgm1={sgm1} sgm2={sgm2}  zz={zz}")
 print("=" * 65)
@@ -84,16 +98,21 @@ D = repr_ints.shape[0]
 print(f"  Basis dimension D = {D}")
 
 # ══════════════════════════════════════════════════════════════════════════════
-# HAMILTONIAN  (nearest-neighbour J1 = 1)
+# HAMILTONIAN  (J1-J2 model)
 # ══════════════════════════════════════════════════════════════════════════════
-# all_bonds returns bonds in MPS-site order; use only NN bonds (J1 = 1)
-nn_bonds = lattice.nn_bonds()   # [nb, 2] in MPS indices
-J1 = 1.0
-J_per_bond = torch.full((nn_bonds.shape[0],), J1, dtype=torch.float64)
+nn_bonds  = lattice.nn_bonds()    # [n1, 2] in MPS indices
+nnn_bonds = lattice.nnn_bonds()   # [n2, 2] in MPS indices
 
-ham = HeisenbergHamiltonian(bonds=nn_bonds, J_per_bond=J_per_bond, basis=basis)
+J1_per_bond = torch.full((nn_bonds.shape[0],),  J1, dtype=torch.float64)
+J2_per_bond = torch.full((nnn_bonds.shape[0],), J2, dtype=torch.float64)
 
-print(f"  Number of NN bonds: {nn_bonds.shape[0]}")
+all_bonds   = lattice.all_bonds()
+J_per_bond  = torch.cat([J1_per_bond, J2_per_bond], dim=0)
+
+ham = HeisenbergHamiltonian(bonds=all_bonds, J_per_bond=J_per_bond, basis=basis)
+
+print(f"  Number of NN bonds:  {nn_bonds.shape[0]}")
+print(f"  Number of NNN bonds: {nnn_bonds.shape[0]}")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # LANCZOS

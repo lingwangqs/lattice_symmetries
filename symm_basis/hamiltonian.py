@@ -84,8 +84,6 @@ class HeisenbergHamiltonian:
           2. Find the representative of each flipped config and its norm.
           3. Remove zero-norm states (not in the valid sector).
           4. De-duplicate: if multiple bonds lead to the same |R'⟩, sum their weights.
-          5. Exclude |R'⟩ = |R⟩ (diagonal contribution handled separately). doesn't contribute to connectivity
-
         Parameters
         ----------
         config : LongTensor [N]
@@ -164,9 +162,10 @@ class HeisenbergHamiltonian:
 
         # --- Step 6: exclude self (|R'⟩ = |R⟩) ------------------------------
         #Note by Ling, One should not rule out R'=R although this is a rare case
-        is_self = (conn_reprs_merged == config.unsqueeze(0)).all(dim=1)
-        keep    = ~is_self
-        return conn_reprs_merged[keep], weights_merged[keep]
+        #is_self = (conn_reprs_merged == config.unsqueeze(0)).all(dim=1)
+        #keep    = ~is_self
+        #return conn_reprs_merged[keep], weights_merged[keep]
+        return conn_reprs_merged, weights_merged
 
     def diagonal_element(self, config: torch.Tensor) -> float:
         """

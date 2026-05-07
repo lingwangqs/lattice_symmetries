@@ -304,6 +304,15 @@ class SquareLattice2D:
         d2_bonds = self._mps_bonds_from_nat(i_nat_d2, j_nat_d2)
         return torch.cat([d1_bonds, d2_bonds], dim=0)
 
+    def nnn_bonds(self) -> torch.Tensor:
+        """
+        Next-nearest-neighbor bond table in MPS order (alias for diagonal_bonds).
+
+        On a square lattice the NNN neighbours are the two diagonal directions,
+        so this returns the same [2*N, 2] tensor as diagonal_bonds().
+        """
+        return self.diagonal_bonds()
+
     def all_bonds(self) -> torch.Tensor:
         """
         Concatenation of NN (and optionally diagonal) bond tables in MPS order.

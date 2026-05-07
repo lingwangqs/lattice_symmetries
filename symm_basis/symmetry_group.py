@@ -368,6 +368,7 @@ class SymmetryGroup:
             #       the norm to zero).
             #
             # Both checks loop over the unique permutations (ntrans_u blocks).
+            """
             for u in range(ntrans_u):
                 block = sort_idx[u * stride : (u + 1) * stride]  # indices into transstep_all
                 phases = [
@@ -404,6 +405,7 @@ class SymmetryGroup:
                         f"This symmetry sector has zero norm — no physical states "
                         f"exist with these quantum numbers."
                     )
+            """
         else:
             unique_first = sort_idx
 
